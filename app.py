@@ -1,7 +1,8 @@
-from flask import Flask
+from flask import Flask, request
 from logging import Logger
-from flask import render_template
 from model_wrapper import ModelWrapper
+import datetime
+
 
 app = Flask(__name__)
 logger = Logger()
@@ -11,13 +12,76 @@ try:
 except Exception as e:
     logger.error(f"Failed to load model: {e}")
     ml_model = None 
+
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return {
+        "service": "Cyber Attack Type Classifier API",
+        "version": "0.1.0",
+        "model_accuracy": ml_model.accuracy if ml_model else "N/A",
+        "endpoints":{
+            "predict": "/predict",
+            "model_info": "/model-info",
+            "health": "/health",
+        },
+        "example_request":{
+            # FIX ME 
+        }
+    }
+@app.route('/health')
+def health():
+    return {
+        "status": "healty" if ml_model else "unhealthy",
+        "timestamp": datetime.now().isoformat(),
+        "model_loaded": ml_model is not None
+    }
+@app.route('/model-info')
+def model_info():
+    if not ml_model:
+        return {"error": "Model not loaded"}, 500
+    
+    return{
+        "model_type" : "Decision Tree",
+        "accuracy": ml_model.accuracy,
+        "features": ml_model.feature_names,
+        "classes": ml_model.target_names,
+        "num_featues": len(ml_model.feature_names),
+        "num_classes": len(ml_model.target_names)
 
-@app.route('/about')
-def about():
-    return render_template('about.html')
+    }
+
+@app.route('/predict')
+def predict():
+    if not ml_model:
+        return {"error": "Model not loaded"}, 500
+    
+    try:
+        data = request.get_json()
+        if not data:
+            return {"error": "No JSON data provided"}, 400 
+        
+        X = ml_model.validate_input(data)
+
+        result = ml_model.predict(X)
+
+        return {
+            "status": "success",
+            "prediction" : result,
+            "timestamp": datetime.now().isoformat()
+        }
+    except ValueError as v:
+        return {"error": str(v)}, 400
+    except Exception as e:
+        logger.error(f"Prediction error: {e}")
+        return {"error": "Internal server error"}, 500
+
+@app.errorhandler(404)
+def not_found(error):
+    return {"error": "Endpoint not found"}, 404
+
+@app.errorhandler(405)
+def method_not_allowed(error):
+    return {"error": "Method not allowed"}, 405
 
 if(__name__ == '__main__'):
     app.run(debug = True)
