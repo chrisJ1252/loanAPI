@@ -1,5 +1,4 @@
 import joblib
-import numpy as np
 import pandas as pd 
 import logging
 from datetime import datetime
@@ -41,19 +40,17 @@ class ModelWrapper:
         "Validate input data"
 
         self.expected_dtypes = {
-            "Source Port": "object",
-            "Destination IP": "object",
-            "Source Country": "object",
-            "Destination Country": "object",
-            "Protocol": "object",
-            "Source Port": "float64",
-            "Destination Port": "float64",
-            "Payload Size (bytes)": "float64",
-            "Detection Label": "object",
-            "Confidence Score": "float64",
-            "ML Model": "object",
-            "Affected System": "object",
-            "Port Type": "object"
+            "no_of_dependents": "int64",
+            "education": "object",
+            "self_employed": "object",
+            "income_annum": "int64",
+            "loan_ammount": "int64",
+            "loan_term": "int64",
+            "cibil_score": "int64",
+            "residential_assets_value": "int64",
+            "commercial_assets_value": "int64",
+            "luxury_assets_value": "int64",
+            "bank_asset_value ": "int64",
         }
         if isinstance(data, dict):
             data = [data]

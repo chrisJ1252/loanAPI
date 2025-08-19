@@ -5,7 +5,7 @@ import datetime
 
 
 app = Flask(__name__)
-logger = Logger()
+logger = Logger(__name__)
 
 try:
     ml_model = ModelWrapper("/Users/eugene/mlPractice/CyberAttackModel/cyberAttackModel/cyber_attack_model.ipynb")
@@ -16,7 +16,7 @@ except Exception as e:
 @app.route('/')
 def home():
     return {
-        "service": "Cyber Attack Type Classifier API",
+        "service": "Loan Prediction API",
         "version": "0.1.0",
         "model_accuracy": ml_model.accuracy if ml_model else "N/A",
         "endpoints":{
@@ -25,7 +25,17 @@ def home():
             "health": "/health",
         },
         "example_request":{
-            # FIX ME 
+            "no_of_dependents": 1,
+            "education": "Graduate",
+            "self_employed": "no",
+            "income_annum": 120000,
+            "loan_ammount": 7000,
+            "loan_term": 72,
+            "cibil_score": 690,
+            "residential_assets_value": 0,
+            "commercial_assets_value": 0,
+            "luxury_assets_value" : 0,
+            "bank_asset_value": 0
         }
     }
 @app.route('/health')
