@@ -1,14 +1,17 @@
 from flask import Flask, request
 from logging import Logger
 from model_wrapper import ModelWrapper
-import datetime
+from datetime import datetime
+import os
 
 
 app = Flask(__name__)
 logger = Logger(__name__)
+modelPath = "best_decision_tree.joblib"
 
 try:
-    ml_model = ModelWrapper("/Users/eugene/mlPractice/CyberAttackModel/cyberAttackModel/cyber_attack_model.ipynb")
+    
+    ml_model = ModelWrapper(modelPath)
 except Exception as e:
     logger.error(f"Failed to load model: {e}")
     ml_model = None 
@@ -50,17 +53,17 @@ def model_info():
     if not ml_model:
         return {"error": "Model not loaded"}, 500
     
-    return{
+    return {
         "model_type" : "Decision Tree",
         "accuracy": ml_model.accuracy,
-        "features": ml_model.feature_names,
-        "classes": ml_model.target_names,
+        "features": ml_model.feature_names.tolist(), # needed to be tolist() bc it was ndarray
+        "classes": ml_model.target_names.tolist(),
         "num_featues": len(ml_model.feature_names),
         "num_classes": len(ml_model.target_names)
 
     }
 
-@app.route('/predict')
+@app.route('/predict', methods = ["POST", "GET"])
 def predict():
     if not ml_model:
         return {"error": "Model not loaded"}, 500
