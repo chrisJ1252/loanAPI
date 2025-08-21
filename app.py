@@ -1,4 +1,5 @@
-from flask import Flask, request,jsonify
+from flask import Flask, request
+import json
 from logging import Logger
 from model_wrapper import ModelWrapper
 from datetime import datetime
@@ -7,6 +8,16 @@ app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 logger = Logger(__name__)
 modelPath = "best_decision_tree.joblib"
+
+import json
+from flask import Response
+
+def pretty_json(data, status=200):
+    return Response(
+        json.dumps(data, indent=4),
+        status=status,
+        mimetype="application/json"
+    )
 
 try:
 
@@ -17,7 +28,7 @@ except Exception as e:
 
 @app.route('/')
 def home():
-    return jsonify({
+    return pretty_json({
 
         "service": "Loan Prediction API",
 
@@ -36,31 +47,21 @@ def home():
 
         "example_request":{
             "no_of_dependents": 1,
-
             "education": "Graduate",
-
             "self_employed": "no",
-
             "income_annum": 120000,
-
             "loan_ammount": 7000,
-
             "loan_term": 72,
-
             "cibil_score": 690,
-
             "residential_assets_value": 0,
-
             "commercial_assets_value": 0,
-
             "luxury_assets_value" : 0,
-
             "bank_asset_value": 0
         }
     })
 @app.route('/health')
 def health():
-    return jsonify({
+    return pretty_json({
         "status": "healty" if ml_model else "unhealthy",
 
         "timestamp": datetime.now().isoformat(),
@@ -72,7 +73,7 @@ def model_info():
     if not ml_model:
         return {"error": "Model not loaded"}, 500
     
-    return jsonify({
+    return pretty_json({
         "model_type" : "Decision Tree",
 
         "accuracy": ml_model.accuracy,
@@ -101,11 +102,11 @@ def predict():
 
         result = ml_model.predict(X)
 
-        return jsonify({
+        return pretty_json({
             "status": "success",
 
             "prediction" : result,
-            
+
             "timestamp": datetime.now().isoformat()
         })
     except ValueError as v:
