@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request,jsonify
 from logging import Logger
 from model_wrapper import ModelWrapper
 from datetime import datetime
@@ -16,16 +16,16 @@ except Exception as e:
 
 @app.route('/')
 def home():
-    return {
+    return jsonify({
         "service": "Loan Prediction API",
-        "\nversion": "0.1.0",
-        "\nmodel_accuracy": ml_model.accuracy if ml_model else "N/A",
-        "\nendpoints":{
+        "version": "0.1.0",
+        "model_accuracy": ml_model.accuracy if ml_model else "N/A",
+        "endpoints":{
             "predict": "/predict",
             "model_info": "/model-info",
             "health": "/health",
         },
-        "\nexample_request":{
+        "example_request":{
             "no_of_dependents": 1,
             "education": "Graduate",
             "self_employed": "no",
@@ -38,28 +38,28 @@ def home():
             "luxury_assets_value" : 0,
             "bank_asset_value": 0
         }
-    }
+    })
 @app.route('/health')
 def health():
-    return {
-        "\nstatus": "healty" if ml_model else "unhealthy",
-        "\ntimestamp": datetime.now().isoformat(),
-        "\nmodel_loaded": ml_model is not None
-    }
+    return jsonify({
+        "status": "healty" if ml_model else "unhealthy",
+        "timestamp": datetime.now().isoformat(),
+        "model_loaded": ml_model is not None
+    })
 @app.route('/model-info')
 def model_info():
     if not ml_model:
         return {"error": "Model not loaded"}, 500
     
-    return {
-        "\nmodel_type" : "Decision Tree",
-        "\naccuracy": ml_model.accuracy,
-        "\nfeatures": ml_model.feature_names.tolist(), # needed to be tolist() bc it was ndarray
-        "\nclasses": ml_model.target_names.tolist(),
-        "\nnum_featues": len(ml_model.feature_names),
-        "\nnum_classes": len(ml_model.target_names)
+    return jsonify({
+        "model_type" : "Decision Tree",
+        "accuracy": ml_model.accuracy,
+        "features": ml_model.feature_names.tolist(), # needed to be tolist() bc it was ndarray
+        "classes": ml_model.target_names.tolist(),
+        "num_featues": len(ml_model.feature_names),
+        "num_classes": len(ml_model.target_names)
 
-    }
+    })
 
 @app.route('/predict', methods = ["POST", "GET"])
 def predict():
@@ -75,11 +75,11 @@ def predict():
 
         result = ml_model.predict(X)
 
-        return {
+        return jsonify({
             "status": "success",
-            "\nprediction" : result,
-            "\ntimestamp": datetime.now().isoformat()
-        }
+            "prediction" : result,
+            "timestamp": datetime.now().isoformat()
+        })
     except ValueError as v:
         return {"error": str(v)}, 400
     except Exception as e:
