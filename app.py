@@ -4,6 +4,7 @@ from model_wrapper import ModelWrapper
 from datetime import datetime
 
 app = Flask(__name__)
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 logger = Logger(__name__)
 modelPath = "best_decision_tree.joblib"
 
