@@ -1,5 +1,1 @@
 flask_env/
-
-loanPredictionModel/
-
-*.joblib

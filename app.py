@@ -2,15 +2,13 @@ from flask import Flask, request
 from logging import Logger
 from model_wrapper import ModelWrapper
 from datetime import datetime
-import os
-
 
 app = Flask(__name__)
 logger = Logger(__name__)
 modelPath = "best_decision_tree.joblib"
 
 try:
-    
+
     ml_model = ModelWrapper(modelPath)
 except Exception as e:
     logger.error(f"Failed to load model: {e}")
