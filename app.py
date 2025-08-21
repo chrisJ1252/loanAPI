@@ -77,8 +77,8 @@ def predict():
 
         return {
             "status": "success",
-            "prediction" : result,
-            "timestamp": datetime.now().isoformat()
+            "\nprediction" : result,
+            "\ntimestamp": datetime.now().isoformat()
         }
     except ValueError as v:
         return {"error": str(v)}, 400

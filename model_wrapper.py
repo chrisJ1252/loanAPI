@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class ModelWrapper:    
-    def __init__(self, model_path, preprocessor_path=None):
+    def __init__(self, model_path):
         self.model_info = joblib.load(model_path)
         self.model = self.model_info['model']
         self.feature_names = self.model_info['feature_names']
@@ -17,25 +17,16 @@ class ModelWrapper:
         if 'preprocessor' in self.model_info:
             self.preprocessor = self.model_info['preprocessor']
             logger.info("Preprocessor loaded from model file")
-        elif preprocessor_path:
-            self.preprocessor = joblib.load(preprocessor_path)
-            logger.info(f"Preprocessor loaded from {preprocessor_path}")
         else:
             raise ValueError("No preprocessor found. Please provide preprocessor_path or save preprocessor with model.")
         
         logger.info(f"Model loaded with accuracy: {self.accuracy:.4f}")
     
     def preprocess_input(self, data):
-        if isinstance(data, dict):
-            data = [data]
-        
+        if isinstance(data, dict): # check if the data is an instance of a python dictionary
+            data = [data] # need rows not a dictionary, wrap dict in list to create a dataframe with one row
         df = pd.DataFrame(data)
-        
         processed_data = self.preprocessor.transform(df)
-        
-        if hasattr(processed_data, 'toarray'):
-            processed_data = processed_data.toarray()
-        
         processed_df = pd.DataFrame(processed_data, columns=self.feature_names)
         
         return processed_df
@@ -44,7 +35,6 @@ class ModelWrapper:
     
     def predict(self, data):
         processed_data = self.preprocess_input(data)
-        
         predictions = self.model.predict(processed_data)
         probabilities = self.model.predict_proba(processed_data)
         
@@ -52,9 +42,8 @@ class ModelWrapper:
         for pred, proba in zip(predictions, probabilities):
             result = {
                 'prediction_class': self.target_names[pred],
-                'predicted_class_id': int(pred),
-                'confidence_score': float(max(proba)),
-                'all_probabilities': {
+                '\nconfidence_score': float(max(proba)),
+                '\nall_probabilities': {
                     name: float(prob)
                     for name, prob in zip(self.target_names, proba)
                 }
@@ -87,7 +76,6 @@ class ModelWrapper:
             data = [data]
         
         df = pd.DataFrame(data)
-        
         missing_features = set(expected_features.keys()) - set(df.columns)
         if missing_features:
             raise ValueError(f"Missing features: {list(missing_features)}")
