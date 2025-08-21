@@ -18,14 +18,14 @@ except Exception as e:
 def home():
     return {
         "service": "Loan Prediction API",
-        "version": "0.1.0",
-        "model_accuracy": ml_model.accuracy if ml_model else "N/A",
-        "endpoints":{
+        "\nversion": "0.1.0",
+        "\nmodel_accuracy": ml_model.accuracy if ml_model else "N/A",
+        "\nendpoints":{
             "predict": "/predict",
             "model_info": "/model-info",
             "health": "/health",
         },
-        "example_request":{
+        "\nexample_request":{
             "no_of_dependents": 1,
             "education": "Graduate",
             "self_employed": "no",
@@ -42,9 +42,9 @@ def home():
 @app.route('/health')
 def health():
     return {
-        "status": "healty" if ml_model else "unhealthy",
-        "timestamp": datetime.now().isoformat(),
-        "model_loaded": ml_model is not None
+        "\nstatus": "healty" if ml_model else "unhealthy",
+        "\ntimestamp": datetime.now().isoformat(),
+        "\nmodel_loaded": ml_model is not None
     }
 @app.route('/model-info')
 def model_info():
@@ -52,12 +52,12 @@ def model_info():
         return {"error": "Model not loaded"}, 500
     
     return {
-        "model_type" : "Decision Tree",
-        "accuracy": ml_model.accuracy,
-        "features": ml_model.feature_names.tolist(), # needed to be tolist() bc it was ndarray
-        "classes": ml_model.target_names.tolist(),
-        "num_featues": len(ml_model.feature_names),
-        "num_classes": len(ml_model.target_names)
+        "\nmodel_type" : "Decision Tree",
+        "\naccuracy": ml_model.accuracy,
+        "\nfeatures": ml_model.feature_names.tolist(), # needed to be tolist() bc it was ndarray
+        "\nclasses": ml_model.target_names.tolist(),
+        "\nnum_featues": len(ml_model.feature_names),
+        "\nnum_classes": len(ml_model.target_names)
 
     }
 
