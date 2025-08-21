@@ -26,6 +26,7 @@ def home():
             "model_info": "/model-info",
             "health": "/health",
         },
+        
         "example_request":{
             "no_of_dependents": 1,
             "education": "Graduate",
