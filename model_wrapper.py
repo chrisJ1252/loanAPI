@@ -42,8 +42,8 @@ class ModelWrapper:
         for pred, proba in zip(predictions, probabilities):
             result = {
                 'prediction_class': self.target_names[pred],
-                '\nconfidence_score': float(max(proba)),
-                '\nall_probabilities': {
+                'confidence_score': float(max(proba)),
+                'all_probabilities': {
                     name: float(prob)
                     for name, prob in zip(self.target_names, proba)
                 }
