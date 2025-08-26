@@ -5,7 +5,6 @@ from model_wrapper import ModelWrapper
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 logger = Logger(__name__)
 modelPath = "best_decision_tree.joblib"
 
@@ -128,4 +127,4 @@ def method_not_allowed(error):
     return {"error": "Method not allowed"}, 405
 
 if(__name__ == '__main__'):
-    app.run(debug = True)
+    app.run(threaded = True,debug = True)
