@@ -1,15 +1,16 @@
-from flask import Flask, request
+from flask import Flask, request, Response
 import json
+from dotenv import load_dotenv
 from logging import Logger
 from model_wrapper import ModelWrapper
-from datetime import datetime
+from datetime import datetime 
+from auth import require_token
+load_dotenv()
+
 
 app = Flask(__name__)
 logger = Logger(__name__)
 modelPath = "best_decision_tree.joblib"
-
-import json
-from flask import Response
 
 def pretty_json(data, status=200):
     return Response(
@@ -19,7 +20,6 @@ def pretty_json(data, status=200):
     )
 
 try:
-
     ml_model = ModelWrapper(modelPath)
 except Exception as e:
     logger.error(f"Failed to load model: {e}")
@@ -30,12 +30,11 @@ def home():
     return pretty_json({
         "service": "Loan Prediction API",
         "version": "0.1.0",
-        "model_accuracy": ml_model.accuracy if ml_model else "N/A",
-
+        
         "endpoints":{
-            "predict": "/predict",
+            "predict(Requires API key)": "/predict",
             "model_info": "/model-info",
-            "health": "/health",
+            "health(Requires API key)": "/health",
 
         },
         "example_request":{
@@ -53,6 +52,7 @@ def home():
         }
     })
 @app.route('/health')
+@require_token
 def health():
     return pretty_json({
         "status": "healty" if ml_model else "unhealthy",
@@ -67,14 +67,14 @@ def model_info():
     
     return pretty_json({
         "model_type" : "Decision Tree",
-        "accuracy": ml_model.accuracy,
         "features": ml_model.feature_names.tolist(), # needed to be tolist() bc it was ndarray
         "classes": ml_model.target_names.tolist(),
-        "num_featues": len(ml_model.feature_names),
+        "num_features": len(ml_model.feature_names),
         "num_classes": len(ml_model.target_names)
     })
 
 @app.route('/predict', methods = ["POST", "GET"])
+@require_token
 def predict():
     if not ml_model:
         return {"error": "Model not loaded"}, 500
@@ -117,7 +117,7 @@ def predict():
         logger.error(f"Prediction error: {e}")
         return {"error": "Internal server error"}, 500
         
-
+@app.route('/')
 @app.errorhandler(404)
 def not_found(error):
     return {"error": "Endpoint not found"}, 404
@@ -127,4 +127,4 @@ def method_not_allowed(error):
     return {"error": "Method not allowed"}, 405
 
 if(__name__ == '__main__'):
-    app.run(threaded = True,debug = True)
+    app.run(threaded = True, debug = True)

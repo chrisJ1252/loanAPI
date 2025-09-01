@@ -89,7 +89,9 @@ class ModelWrapper:
                     raise ValueError(f"Feature '{feature}' must be a number")
                 if df[feature].min() < 0:
                     raise ValueError(f"Feature '{feature}' cannot be negative")
-            
+                if df['cibil_score'].max() > 800:
+                    raise ValueError(f"Credit score cannot exceed 800")
+                  
             elif expected_type == "categorical":
                 if feature in valid_values:
                     invalid_values = set(df[feature]) - set(valid_values[feature])
