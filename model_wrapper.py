@@ -15,7 +15,7 @@ class ModelWrapper:
             self.target_names = self.model_info['target_names']
             self.accuracy = self.model_info['accuracy']
         except Exception as e:
-            return f"Failed to load model {e}"
+            raise RuntimeError(f"Failed to load model {e}")
         
         if 'preprocessor' in self.model_info:
             self.preprocessor = self.model_info['preprocessor']
