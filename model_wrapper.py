@@ -8,11 +8,14 @@ logger = logging.getLogger(__name__)
 
 class ModelWrapper:    
     def __init__(self, model_path):
-        self.model_info = joblib.load(model_path)
-        self.model = self.model_info['model']
-        self.feature_names = self.model_info['feature_names']
-        self.target_names = self.model_info['target_names']
-        self.accuracy = self.model_info['accuracy']
+        try:
+            self.model_info = joblib.load(model_path)
+            self.model = self.model_info['model']
+            self.feature_names = self.model_info['feature_names']
+            self.target_names = self.model_info['target_names']
+            self.accuracy = self.model_info['accuracy']
+        except Exception as e:
+            return f"Failed to load model {e}"
         
         if 'preprocessor' in self.model_info:
             self.preprocessor = self.model_info['preprocessor']
@@ -89,13 +92,12 @@ class ModelWrapper:
                     raise ValueError(f"Feature '{feature}' must be a number")
                 if df[feature].min() < 0:
                     raise ValueError(f"Feature '{feature}' cannot be negative")
-                if df['cibil_score'].max() > 800:
-                    raise ValueError(f"Credit score cannot exceed 800")
                   
             elif expected_type == "categorical":
                 if feature in valid_values:
                     invalid_values = set(df[feature]) - set(valid_values[feature])
                     if invalid_values:
                         raise ValueError(f"Feature '{feature}' contains invalid values: {invalid_values}. Must be one of: {valid_values[feature]}")
-        
+        if df['cibil_score'].max() > 800:
+                    raise ValueError(f"Credit score cannot exceed 800")
         return df

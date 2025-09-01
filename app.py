@@ -117,7 +117,7 @@ def predict():
         logger.error(f"Prediction error: {e}")
         return {"error": "Internal server error"}, 500
         
-@app.route('/')
+
 @app.errorhandler(404)
 def not_found(error):
     return {"error": "Endpoint not found"}, 404
