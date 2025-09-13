@@ -5,7 +5,7 @@ from logging import Logger
 from model_wrapper import ModelWrapper
 from datetime import datetime 
 from auth import require_token
-load_dotenv()
+
 
 
 app = Flask(__name__)
